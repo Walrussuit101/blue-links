@@ -15,6 +15,7 @@ const LoginForm = ({ action }: Props) => {
                 type="text" 
                 placeholder="Handle"
                 name="handle"
+                required
             />
             <Submit />
         </form>
