@@ -31,7 +31,7 @@ const UserImage = ({ did, service, handle, cid }: Props) => {
 
     if (url === null) {
         return (
-            <div className='w-[150px] h-[150px] bg-black' />
+            <div className='w-[175px] h-[175px] bg-black' />
         )
     }
 
@@ -40,8 +40,8 @@ const UserImage = ({ did, service, handle, cid }: Props) => {
             className='rounded-full'
             src={url}
             alt={handle}
-            height={150}
-            width={150}
+            height={175}
+            width={175}
         />
     )
 }

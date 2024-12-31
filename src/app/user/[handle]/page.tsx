@@ -28,8 +28,8 @@ const User = async ({ params }: Props) => {
                 service={service} 
                 cid={profile.avatar?.ref.toString()} 
             />
-            <p className="text-3xl mt-4">{profile.displayName}</p>
-            <small>{handle}</small>
+            <p className="text-4xl mt-4">{profile.displayName}</p>
+            <small className="text-base">{handle}</small>
         </div>
     )
 }
