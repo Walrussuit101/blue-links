@@ -29,7 +29,7 @@ const User = async ({ params }: Props) => {
                 cid={profile.avatar?.ref.toString()} 
             />
             <p className="text-4xl mt-4">{profile.displayName}</p>
-            <small className="text-base">{handle}</small>
+            <small className="text-sm">{handle}</small>
         </div>
     )
 }
