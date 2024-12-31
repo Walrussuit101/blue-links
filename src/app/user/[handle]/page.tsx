@@ -1,5 +1,5 @@
 import { AppBskyActorProfile } from "@atproto/api";
-import { getAgent } from "../../../atProto";
+import { getUnAuthdAgent } from "../../../atProto";
 import UserImage from "./UserImage";
 
 // TODO: displayName isn't always defined, if it isn't 'big' name should be handle instead of displayName
@@ -11,7 +11,7 @@ interface Props {
 }
 const User = async ({ params }: Props) => {
     const handle = (await params).handle;
-    const { agent, did, service } = await getAgent(handle);
+    const { agent, did, service } = await getUnAuthdAgent(handle);
     
     const profileRecord = await agent.com.atproto.repo.getRecord({
         repo: did,

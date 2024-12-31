@@ -1,7 +1,7 @@
 import { Agent } from "@atproto/api";
 import { DidResolver, HandleResolver } from "@atproto/identity"
 
-export const getAgent = async (handle: string) => {
+export const getUnAuthdAgent = async (handle: string) => {
     const resolvers = {
         did: new DidResolver({}),
         handle: new HandleResolver()
