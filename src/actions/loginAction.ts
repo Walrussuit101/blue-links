@@ -6,9 +6,8 @@ export const loginAction = async (prevState: any, formData: FormData) => {
 
     const handle = formData.get('handle');
 
-    // TODO: handle no handle given
     if (!handle) {
-        return;
+        throw new Error('Handle was not provided');
     }
 
     const authClient = await createClient();
