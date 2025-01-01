@@ -8,22 +8,24 @@ interface Props {
     did: string
     handle: string
     service: string
-    cid: string
+    cid?: string // in the event of no bsky avatar / bsky profile record
 }
 const UserImage = ({ did, service, handle, cid }: Props) => {
     const [url, setUrl] = useState<string | null>(null);
 
     useEffect(() => {
         const load  = async () => {
-            const agent = new Agent(service);
+            if (cid) {
+                const agent = new Agent(service);
 
-            const avatarBlob = await agent.com.atproto.sync.getBlob({
-                did: did,
-                cid: cid
-            });
-
-            const blobUrl = URL.createObjectURL(new Blob([avatarBlob.data]));
-            setUrl(blobUrl);
+                const avatarBlob = await agent.com.atproto.sync.getBlob({
+                    did: did,
+                    cid: cid
+                });
+    
+                const blobUrl = URL.createObjectURL(new Blob([avatarBlob.data]));
+                setUrl(blobUrl);
+            }
         }
 
         load();
@@ -31,7 +33,7 @@ const UserImage = ({ did, service, handle, cid }: Props) => {
 
     if (url === null) {
         return (
-            <div className='w-[175px] h-[175px] bg-black' />
+            <div className='rounded-full w-[175px] h-[175px] bg-gradient-to-r from-slate-400 from-10% to-slate-900' />
         )
     }
 

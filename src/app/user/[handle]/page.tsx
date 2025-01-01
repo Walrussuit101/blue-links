@@ -27,6 +27,19 @@ const User = async ({ params }: Props) => {
     });
     const profile = profileRecord.data.value as AppBskyActorProfile.Record;
 
+    let links: string[] = []
+    try {   
+        const linksRecord = await agent.com.atproto.repo.getRecord({
+            repo: didDoc.id,
+            collection: 'info.timjefferson.links',
+            rkey: 'self'
+        });
+
+        links = linksRecord.data.value as string[];
+    } catch(e) {
+        links = [];
+    }
+
     return (
         <div className="flex w-screen h-screen justify-center items-center flex-col">
             <UserImage 
@@ -37,6 +50,10 @@ const User = async ({ params }: Props) => {
             />
             <p className="text-4xl mt-4">{profile.displayName}</p>
             <small className="text-sm">{handle}</small>
+            {
+                links.length === 0 &&
+                <p className="mt-8 text-lg">No links to show :(</p>
+            }
         </div>
     )
 }
