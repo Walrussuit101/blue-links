@@ -1,7 +1,7 @@
+import { redirect } from "next/navigation";
+
 const Home = async () => {
-    return (
-        <p>hello world</p>
-    )
+    return redirect('/u/bsky.app');
 }
 
 export default Home;

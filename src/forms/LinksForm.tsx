@@ -31,7 +31,7 @@ const LinksForm = ({ action, initialData }: Props) => {
                     }
                 });
 
-                return newLinks;
+                return validateOrder(newLinks);
             });
         }
     }
@@ -54,26 +54,26 @@ const LinksForm = ({ action, initialData }: Props) => {
                     }
                 });
 
-                return newLinks;
+                return validateOrder(newLinks);
             });
         }
     }
 
     const addLink = () => {
         setLinkData(prev => {
-            return prev.concat({
+            return validateOrder(prev.concat({
                 id: uuidv4(),
-                name: `Link ${prev.length + 1}`,
+                name: "New Link",
                 order: prev.length + 1,
                 url: 'https://example.com',
                 createdAt: new Date()
-            })
+            }))
         })
     }
 
     const removeLink = (id: string) => {
         setLinkData(prev => {
-            return prev.filter(link => link.id !== id);
+            return validateOrder(prev.filter(link => link.id !== id));
         })
     }
 
@@ -95,7 +95,7 @@ const LinksForm = ({ action, initialData }: Props) => {
     return (
         <form action={formAction} className="flex w-full justify-start items-center flex-col gap-10 pt-10">
             {
-                linkData.toSorted((a, b) => a.order - b.order).map((link, i) => {
+                linkData.map((link, i) => {
                     return (
                         <div key={link.id} className="flex flex-col gap-2 px-6 w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
                             <div className="flex flex-row items-center gap-1">
@@ -150,5 +150,35 @@ const Submit = () => {
         </button>
     )
 }
+
+
+/*
+    Sometimes you can lose an order index, like order 1 for example:
+    If user has 1 link, with order = 1
+    adds a second link, with order = 2
+    remove the 1st link, only link with order = 2 will remain.
+
+    this can break things, for example:
+    adding a link after this will cause it to have order = 2, then user has two link with order 2
+ */
+    const validateOrder = (linksData: LinkData[]) => {
+        const sorted = linksData.sort((a, b) => a.order - b.order);
+    
+        for (let i = 0; i < sorted.length; i++) {
+            if (i === 0 && sorted[i].order !== 1) {
+                sorted[i].order = 1
+            }
+    
+            if (i > 0 && sorted[i].order <= sorted[i-1].order) {
+                sorted[i].order = sorted[i-1].order + 1;
+            }
+    
+            if (i === sorted.length - 1 && sorted[i].order !== sorted.length) {
+                sorted[i].order = sorted.length;
+            }
+        }
+    
+        return sorted;
+    }
 
 export default LinksForm;
