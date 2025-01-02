@@ -1,9 +1,12 @@
 import { Agent, AppBskyActorProfile } from "@atproto/api";
-import { getDIDDoc } from "../../../../atproto";
+import { getDIDDoc, restoreSession } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
 import { LinkData, LinkRecord } from "@/types";
 import { Metadata } from "next";
+import { cookies } from "next/headers";
+import { createAuthClient } from "@/auth/client";
+import Link from "next/link";
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
     const handle = (await params).handle;
@@ -19,6 +22,8 @@ interface Props {
     }>
 }
 const User = async ({ params }: Props) => {
+    const cookieStore = await cookies();
+    const authClient = await createAuthClient();
     const handle = (await params).handle;
     const didDoc = await getDIDDoc(handle);
 
@@ -49,6 +54,10 @@ const User = async ({ params }: Props) => {
         links = [];
     }
 
+    const did = cookieStore.get('did');
+    const session = await restoreSession(authClient, did?.value);
+    const isSelf = session?.did === didDoc.id;
+
     return (
         <div className="flex w-screen h-screen justify-start items-center flex-col pt-12 px-5">
             <UserImage
@@ -59,6 +68,12 @@ const User = async ({ params }: Props) => {
             />
             <p className="text-4xl mt-2">{profile.displayName}</p>
             <small className={`text-sm ${profile.displayName === undefined || profile.displayName.length === 0 && 'mt-2'}`}>{handle}</small>
+            { 
+                isSelf &&
+                <Link href="/edit">
+                    <button className="bg-white text-black h-8 w-20 mt-4">Edit</button>
+                </Link>
+            }
             {
                 links.length === 0 &&
                 <p className="mt-8 text-lg">No links to show :(</p>
