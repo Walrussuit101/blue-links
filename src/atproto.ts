@@ -1,4 +1,6 @@
+import { AtUri } from "@atproto/api";
 import { DidDocument, DidResolver, HandleResolver } from "@atproto/identity"
+import { NodeOAuthClient } from "@atproto/oauth-client-node";
 
 interface DidDocumentWithServiceEndpoint extends DidDocument {
     serviceEndpoint: string
@@ -34,4 +36,36 @@ export const getDIDDoc = async (handle: string): Promise<DidDocumentWithServiceE
         ...didDoc,
         serviceEndpoint: service
     };
+}
+
+export const restoreSession = async (client: NodeOAuthClient, did: string | undefined) => {
+    if (!did) {
+        return null
+    }
+
+    try {
+        const session = await client.restore(did);
+        return session;
+    } catch(e) {
+        console.log(e);
+        return null;
+    }
+}
+
+export const getHandleFromDID = async (did: string): Promise<string | null> => {
+    const didResolver = new DidResolver({});
+    const didDoc = await didResolver.resolve(did);
+
+    if (!didDoc) {
+        return null;
+    }
+
+    const knownAs = didDoc.alsoKnownAs?.at(0);
+
+    if (!knownAs) {
+        return null;
+    } else {
+        const uri = new AtUri(knownAs);
+        return uri.host;
+    }
 }

@@ -1,5 +1,5 @@
 import { Agent, AppBskyActorProfile } from "@atproto/api";
-import { getDIDDoc } from "../../../atproto";
+import { getDIDDoc } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
 
