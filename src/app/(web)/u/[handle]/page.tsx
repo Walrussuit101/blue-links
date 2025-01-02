@@ -31,7 +31,7 @@ const User = async ({ params }: Props) => {
     try {   
         const linksRecord = await agent.com.atproto.repo.getRecord({
             repo: didDoc.id,
-            collection: 'info.timjefferson.links',
+            collection: 'info.timjefferson.dev.blue-links.links',
             rkey: 'self'
         });
 
@@ -41,7 +41,7 @@ const User = async ({ params }: Props) => {
     }
 
     return (
-        <div className="flex w-screen h-screen justify-center items-center flex-col">
+        <div className="flex w-screen h-screen justify-start items-center flex-col pt-12">
             <UserImage 
                 did={didDoc.id} 
                 handle={handle} 
