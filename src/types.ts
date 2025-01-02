@@ -1,4 +1,4 @@
-export const LinkCollection = 'info.timjefferson.dev.blue-links.links'
+export const LinkCollection = process.env.NODE_ENV === 'development' ? 'info.timjefferson.dev.blue-links.links' : 'fyi.bluelinks.links';
 
 export interface LinkRecord {
     $type: typeof LinkCollection;

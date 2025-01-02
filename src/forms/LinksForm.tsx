@@ -108,6 +108,7 @@ const LinksForm = ({ action, initialData }: Props) => {
                                     onChange={e => contentChange(link.id, e)}
                                     value={link.name}
                                     className="text-black h-8 px-2 w-full"
+                                    required
                                 />
                             </div>
                             <input
@@ -116,6 +117,7 @@ const LinksForm = ({ action, initialData }: Props) => {
                                 value={link.url}
                                 className="w-full h-8 text-black px-2"
                                 placeholder="Link (https://github.com)"
+                                required
                             />
                             <input
                                 name="description"
