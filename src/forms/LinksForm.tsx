@@ -93,7 +93,7 @@ const LinksForm = ({ action, initialData }: Props) => {
     }
 
     return (
-        <form action={formAction} className="flex w-full justify-start items-center flex-col gap-10 pt-10">
+        <form action={formAction} className="flex w-full h-full justify-start items-center flex-col gap-10 pt-10">
             {
                 linkData.map((link, i) => {
                     return (
