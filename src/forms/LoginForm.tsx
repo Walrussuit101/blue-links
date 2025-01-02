@@ -27,7 +27,7 @@ const Submit = () => {
 
     return (
         <button 
-            className="bg-white text-black h-8 w-64 disabled:bg-slate-400"
+            className="bg-white text-black h-8 w-64 disabled:bg-zinc-400"
             disabled={pending} 
             type="submit"
         >

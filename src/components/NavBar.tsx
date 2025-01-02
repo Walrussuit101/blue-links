@@ -1,6 +1,7 @@
 import { getHandleFromDID, restoreSession } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
 import { cookies } from "next/headers"
+import Link from "next/link";
 import { ReactNode } from "react";
 
 const NavBar = async () => {
@@ -14,23 +15,26 @@ const NavBar = async () => {
         const handle = await getHandleFromDID(session!.did);
 
         return NavContent(
+            // Is a "route", can't use <Link/>
             <a href="/logout">
                 <button className="bg-white text-black h-8 w-20">Log Out</button>
             </a>,
-            <p>{handle}</p>,
+            <Link href={`/u/${handle}`} className="underline">
+                {handle}
+            </Link>,
         );
     } else {
         return NavContent(
-            <a href="/login">
+            <Link href="/login">
                 <button className="bg-white text-black h-8 w-20">Log In</button>
-            </a>
+            </Link>
         )
     }
 }
 
 const NavContent = (button: ReactNode, handle?: ReactNode) => {
     return (
-        <nav className="flex w-screen h-16 bg-slate-900 justify-between items-center">
+        <nav className="flex w-full h-16 bg-zinc-900 justify-between items-center px-4">
             {handle ?? <div />}
             <div />
             {button}
