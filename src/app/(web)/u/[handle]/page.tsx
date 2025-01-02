@@ -2,8 +2,7 @@ import { Agent, AppBskyActorProfile } from "@atproto/api";
 import { getDIDDoc } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
-
-// TODO: displayName isn't always defined, if it isn't 'big' name should be handle instead of displayName
+import { LinkData, LinkRecord } from "@/types";
 
 interface Props {
     params: Promise<{
@@ -13,13 +12,13 @@ interface Props {
 const User = async ({ params }: Props) => {
     const handle = (await params).handle;
     const didDoc = await getDIDDoc(handle);
-    
+
     if (!didDoc) {
         return notFound();
     }
 
     const agent = new Agent(didDoc.serviceEndpoint);
-    
+
     const profileRecord = await agent.com.atproto.repo.getRecord({
         repo: didDoc.id,
         collection: 'app.bsky.actor.profile',
@@ -27,32 +26,51 @@ const User = async ({ params }: Props) => {
     });
     const profile = profileRecord.data.value as AppBskyActorProfile.Record;
 
-    let links: string[] = []
-    try {   
+    let links: LinkData[] = []
+    try {
         const linksRecord = await agent.com.atproto.repo.getRecord({
             repo: didDoc.id,
             collection: 'info.timjefferson.dev.blue-links.links',
             rkey: 'self'
         });
 
-        links = linksRecord.data.value as string[];
-    } catch(e) {
+        links = (linksRecord.data.value as LinkRecord).links;
+        links.sort((a, b) => a.order - b.order);
+    } catch (e) {
         links = [];
     }
 
     return (
-        <div className="flex w-screen h-screen justify-start items-center flex-col pt-12">
-            <UserImage 
-                did={didDoc.id} 
-                handle={handle} 
-                service={didDoc.serviceEndpoint} 
+        <div className="flex w-screen h-screen justify-start items-center flex-col pt-12 px-5">
+            <UserImage
+                did={didDoc.id}
+                handle={handle}
+                service={didDoc.serviceEndpoint}
                 cid={profile.avatar?.ref.toString()} 
             />
-            <p className="text-4xl mt-4">{profile.displayName}</p>
-            <small className="text-sm">{handle}</small>
+            <p className="text-4xl mt-2">{profile.displayName}</p>
+            <small className={`text-sm ${profile.displayName === undefined || profile.displayName.length === 0 && 'mt-2'}`}>{handle}</small>
             {
                 links.length === 0 &&
                 <p className="mt-8 text-lg">No links to show :(</p>
+            }
+            {
+                links.length > 0 &&
+                <ul className="mt-4 w-full sm:w-1/2 lg:w-1/4">
+                    {
+                        links.map(link => {
+                            return (
+                                <li key={link.id} className="text-center mt-2">
+                                    <a href={link.url} className="underline text-lg" target="_blank" rel="noreferrer">{link.name}</a>
+                                    {
+                                        link.description !== undefined &&
+                                        <p>{link.description}</p>
+                                    }
+                                </li>
+                            )
+                        })
+                    }
+                </ul>
             }
         </div>
     )
