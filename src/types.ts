@@ -1,6 +1,8 @@
+export const LinkCollection = 'info.timjefferson.dev.blue-links.links'
+
 export interface LinkRecord {
-    $type: 'info.timjefferson.dev.blue-links.links',
-    links: LinkData[]
+    $type: typeof LinkCollection;
+    links: LinkData[];
 }
 
 export interface LinkData {

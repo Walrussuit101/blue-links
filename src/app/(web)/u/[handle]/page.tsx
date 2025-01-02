@@ -2,7 +2,7 @@ import { Agent, AppBskyActorProfile } from "@atproto/api";
 import { getDIDDoc, restoreSession } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
-import { LinkData, LinkRecord } from "@/types";
+import { LinkCollection, LinkData, LinkRecord } from "@/types";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { createAuthClient } from "@/auth/client";
@@ -44,12 +44,11 @@ const User = async ({ params }: Props) => {
     try {
         const linksRecord = await agent.com.atproto.repo.getRecord({
             repo: didDoc.id,
-            collection: 'info.timjefferson.dev.blue-links.links',
+            collection: LinkCollection,
             rkey: 'self'
         });
 
         links = (linksRecord.data.value as LinkRecord).links;
-        links.sort((a, b) => a.order - b.order);
     } catch (e) {
         links = [];
     }
@@ -59,7 +58,7 @@ const User = async ({ params }: Props) => {
     const isSelf = session?.did === didDoc.id;
 
     return (
-        <div className="flex w-screen h-screen justify-start items-center flex-col pt-12 px-5">
+        <div className="flex w-full h-full justify-start items-center flex-col pt-12 px-5">
             <UserImage
                 did={didDoc.id}
                 handle={handle}
@@ -82,7 +81,7 @@ const User = async ({ params }: Props) => {
                 links.length > 0 &&
                 <ul className="mt-4 w-full sm:w-1/2 lg:w-1/4">
                     {
-                        links.map(link => {
+                        links.toSorted((a, b) => a.order - b.order).map(link => {
                             return (
                                 <li key={link.id} className="text-center mt-2">
                                     <a href={link.url} className="underline text-lg" target="_blank" rel="noreferrer">{link.name}</a>
