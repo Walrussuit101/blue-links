@@ -1,10 +1,12 @@
+import { getHandleFromDID } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const GET = async (req: NextRequest, res: NextResponse) => {
-    const params = new URLSearchParams(req.url.split('?')[1]);
+// Get the oauth state (session) back from user's PDS after they authenticate
+export const GET = async (req: NextRequest) => {
+    const params = req.nextUrl.searchParams;
 
     // use the returned oauth state to save the session
     const authClient = await createAuthClient();
@@ -14,5 +16,12 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
     const cookieStore = await cookies();
     cookieStore.set('did', session.did);
 
-    return redirect('/');
+    // redirect user to their page
+    const handle = await getHandleFromDID(session.did);
+
+    if (!handle) {
+        throw new Error(`Could not resolve handle for DID "${session.did}" `)
+    }
+
+    return redirect(`/u/${handle}`);
 }
