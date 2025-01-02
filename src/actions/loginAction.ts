@@ -1,4 +1,4 @@
-import { createClient } from "@/auth/client";
+import { createAuthClient } from "@/auth/client";
 import { redirect } from "next/navigation";
 
 export const loginAction = async (prevState: any, formData: FormData) => {
@@ -10,7 +10,7 @@ export const loginAction = async (prevState: any, formData: FormData) => {
         throw new Error('Handle was not provided');
     }
 
-    const authClient = await createClient();
+    const authClient = await createAuthClient();
     const url = await authClient.authorize(handle.toString(), {
         scope: 'atproto transition:generic'
     });

@@ -1,14 +1,14 @@
 import { getHandleFromDID, restoreSession } from "@/atproto";
-import { createClient } from "@/auth/client";
+import { createAuthClient } from "@/auth/client";
 import { cookies } from "next/headers"
 import { ReactNode } from "react";
 
 const NavBar = async () => {
     const cookieStore = await cookies();
-    const client = await createClient();
+    const authClient = await createAuthClient();
 
     const did = cookieStore.get('did');
-    const session = await restoreSession(client, did?.value);
+    const session = await restoreSession(authClient, did?.value);
 
     if (session) {
         const handle = await getHandleFromDID(session!.did);

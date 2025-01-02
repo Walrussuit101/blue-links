@@ -1,4 +1,4 @@
-import { createClient } from "@/auth/client";
+import { createAuthClient } from "@/auth/client";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
 
@@ -10,7 +10,7 @@ export const GET = async () => {
     if (didCookie) {
         const did = didCookie.value;
 
-        const authClient = await createClient();
+        const authClient = await createAuthClient();
         await authClient.revoke(did);
 
         cookieStore.delete('did');

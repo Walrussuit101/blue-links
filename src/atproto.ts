@@ -38,13 +38,13 @@ export const getDIDDoc = async (handle: string): Promise<DidDocumentWithServiceE
     };
 }
 
-export const restoreSession = async (client: NodeOAuthClient, did: string | undefined) => {
+export const restoreSession = async (authClient: NodeOAuthClient, did: string | undefined) => {
     if (!did) {
         return null
     }
 
     try {
-        const session = await client.restore(did);
+        const session = await authClient.restore(did);
         return session;
     } catch(e) {
         console.log(e);
