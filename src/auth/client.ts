@@ -2,16 +2,18 @@ import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import { SessionStore, StateStore } from './storage'
 
 export const createAuthClient = async () => {
-    const publicUrl = process.env.PUBLIC_URL;
-    const url = publicUrl || `http://127.0.0.1:3000`
+    const url = process.env.ATPROTO_OAUTH_URL;
+    const isLocal = url?.includes('http://127.0.0.1');
 
     return new NodeOAuthClient({
         clientMetadata: {
             client_name: 'Blue Links',
-            client_id: publicUrl
+            client_id: !isLocal
+                // if the app is deployed, use the client-metadata.json resource
                 ? `${url}/client-metadata.json`
                 
-                // localhost doesn't require a client-metadata.json resource and can just define them through query params?
+                // localhost doesn't require a client-metadata.json resource and can just define them through query params
+                // see "Localhost Client Development" in the atproto oauth docs
                 : `http://localhost?redirect_uri=${encodeURIComponent(`${url}/oauth/callback`)}&scope=${encodeURIComponent('atproto transition:generic')}`,
             client_uri: url,
             redirect_uris: [`${url}/oauth/callback`],
