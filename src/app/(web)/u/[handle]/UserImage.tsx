@@ -33,13 +33,13 @@ const UserImage = ({ did, service, handle, cid }: Props) => {
 
     if (url === null) {
         return (
-            <div className='rounded-full w-[175px] h-[175px] bg-gradient-to-r from-slate-400 from-10% to-slate-900' />
+            <div className='rounded-full w-[175px] h-[175px] bg-gradient-to-r from-slate-400 from-10% to-slate-900 outline outline-[6px] outline-zinc-800' />
         )
     }
 
     return (
         <Image
-            className='rounded-full'
+            className='rounded-full aspect-square object-cover outline outline-[6px] outline-zinc-800'
             src={url}
             alt={handle}
             height={175}

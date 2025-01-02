@@ -12,7 +12,7 @@ const NavBar = async () => {
     const session = await restoreSession(authClient, did?.value);
 
     if (session) {
-        const handle = await getHandleFromDID(session!.did);
+        const handle = await getHandleFromDID(session.did);
 
         return NavContent(
             // Is a "route", can't use <Link/>

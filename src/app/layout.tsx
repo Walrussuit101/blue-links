@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 export default function RootLayout({
@@ -7,8 +8,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className="w-screen h-screen bg-zinc-950 text-white font-mono m-0 p-0 overflow-hidden">
+            <body className="w-vw h-screen bg-zinc-950 text-white font-mono m-0 p-0">
                 {children}
+                <Footer />
             </body>
         </html>
     );
