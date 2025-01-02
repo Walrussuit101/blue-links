@@ -9,11 +9,11 @@ const LoginForm = ({ action }: Props) => {
     const [state, formAction] = useActionState(action, null);
 
     return (
-        <form action={formAction} className="flex w-screen h-screen justify-center items-center flex-col">
+        <form action={formAction} className="flex w-screen h-screen justify-center items-center flex-col gap-4">
             <input 
-                style={{ color: 'black' }}
+                className="text-black h-8 w-64 px-2"
                 type="text" 
-                placeholder="Handle"
+                placeholder="Handle (john.bsky.social)"
                 name="handle"
                 required
             />
@@ -26,8 +26,12 @@ const Submit = () => {
     const { pending } = useFormStatus();
 
     return (
-        <button disabled={pending} type="submit">
-            {pending ? 'Logging you in...' : 'Log In'}
+        <button 
+            className="bg-white text-black h-8 w-64 disabled:bg-slate-400"
+            disabled={pending} 
+            type="submit"
+        >
+            {pending ? 'Redirecting to PDS...' : 'Log In'}
         </button>
     )
 }
