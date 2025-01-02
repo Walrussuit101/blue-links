@@ -39,7 +39,7 @@ const UserImage = ({ did, service, handle, cid }: Props) => {
 
     return (
         <Image
-            className='rounded-full outline outline-[6px] outline-zinc-800'
+            className='rounded-full aspect-square object-cover outline outline-[6px] outline-zinc-800'
             src={url}
             alt={handle}
             height={175}
