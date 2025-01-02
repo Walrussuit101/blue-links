@@ -3,6 +3,15 @@ import { getDIDDoc } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
 import { LinkData, LinkRecord } from "@/types";
+import { Metadata } from "next";
+
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+    const handle = (await params).handle;
+
+    return {
+        title: `${handle} | Blue Links`
+    }
+}
 
 interface Props {
     params: Promise<{
