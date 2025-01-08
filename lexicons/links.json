@@ -1,0 +1,50 @@
+{
+    "lexicon": 1,
+    "id": "fyi.bluelinks.links",
+    "defs": {
+        "main": {
+            "type": "record",
+            "key": "literal:self",
+            "record": {
+                "type": "object",
+                "required": ["links"],
+                "properties": {
+                    "links": {
+                        "type": "array",
+                        "description": "Record containing a list of links to display",
+                        "items": {
+                            "type": "ref",
+                            "ref": "#link"
+                        }
+                    }
+                }
+            }
+        },
+        "link": {
+            "type": "object",
+            "description": "Represents a single link to display",
+            "required": ["id", "url", "name", "order", "createdAt"],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "datetime"
+                }
+            }
+        }
+    }
+}
