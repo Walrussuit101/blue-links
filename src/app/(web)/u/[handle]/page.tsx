@@ -2,11 +2,11 @@ import { Agent, AppBskyActorProfile } from "@atproto/api";
 import { getDIDDoc, restoreSession } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
-import { LinkCollection, LinkData, LinkRecord } from "@/types";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { createAuthClient } from "@/auth/client";
 import Link from "next/link";
+import * as Links from '@/lexicon/types/fyi/bluelinks/links';
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
     const handle = (await params).handle;
@@ -40,17 +40,24 @@ const User = async ({ params }: Props) => {
     });
     const profile = profileRecord.data.value as AppBskyActorProfile.Record;
 
-    let links: LinkData[] = []
+    let linksRecord: Links.Record;
     try {
-        const linksRecord = await agent.com.atproto.repo.getRecord({
+        const response = await agent.com.atproto.repo.getRecord({
             repo: didDoc.id,
-            collection: LinkCollection,
+            collection: 'fyi.bluelinks.links',
             rkey: 'self'
         });
 
-        links = (linksRecord.data.value as LinkRecord).links;
+        if (!Links.isRecord(response.data.value) || !Links.validateRecord(response.data.value).success) {
+            throw new Error('Invalid record retrieved');
+        }
+
+        linksRecord = response.data.value;
     } catch (e) {
-        links = [];
+        console.log(e);
+        linksRecord = {
+            links: []
+        };
     }
 
     const did = cookieStore.get('did');
@@ -74,14 +81,14 @@ const User = async ({ params }: Props) => {
                 </Link>
             }
             {
-                links.length === 0 &&
+                linksRecord.links.length === 0 &&
                 <p className="mt-8 text-lg">No links to show :(</p>
             }
             {
-                links.length > 0 &&
+                linksRecord.links.length > 0 &&
                 <ul className="mt-4 w-full sm:w-1/2 lg:w-1/4">
                     {
-                        links.toSorted((a, b) => a.order - b.order).map(link => {
+                        linksRecord.links.toSorted((a, b) => a.order - b.order).map(link => {
                             return (
                                 <li key={link.id} className="text-center mt-2">
                                     <a href={link.url} className="underline text-lg" target="_blank" rel="noreferrer">{link.name}</a>

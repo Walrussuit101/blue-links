@@ -1,85 +1,90 @@
 'use client';
 
-import { LinkData } from "@/types";
 import { ChangeEvent, useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { v4 as uuidv4 } from 'uuid';
+import * as Links from '@/lexicon/types/fyi/bluelinks/links';
 
 interface Props {
     action: (prevState: any, formData: FormData) => void
-    initialData: LinkData[];
+    initialData: Links.Record;
 }
 const LinksForm = ({ action, initialData }: Props) => {
     const [state, formAction] = useActionState(action, null);
-    const [linkData, setLinkData] = useState<LinkData[]>(structuredClone(initialData));
+    const [linksData, setLinksData] = useState<Links.Record>(structuredClone(initialData));
 
     const moveUp = (order: number) => {
         if (order > 1) {
-            setLinkData(prevLinks => {
-                const newLinks = prevLinks.map(link => {
-                    let newOrder = link.order;
+            setLinksData(prevLinks => {
+                return {
+                    links: validateOrder(prevLinks.links.map(link => {
+                        let newOrder = link.order;
 
-                    if (link.order === order - 1) {
-                        newOrder++;
-                    } else if (link.order === order) {
-                        newOrder--;
-                    }
+                        if (link.order === order - 1) {
+                            newOrder++;
+                        } else if (link.order === order) {
+                            newOrder--;
+                        }
 
-                    return {
-                        ...link,
-                        order: newOrder
-                    }
-                });
-
-                return validateOrder(newLinks);
+                        return {
+                            ...link,
+                            order: newOrder
+                        }
+                    }))
+                }
             });
         }
     }
 
     const moveDown = (order: number) => {
-        if (order < linkData.length) {
-            setLinkData(prevLinks => {
-                const newLinks = prevLinks.map(link => {
-                    let newOrder = link.order;
+        if (order < linksData.links.length) {
+            setLinksData(prevLinks => {
+                return {
+                    links: validateOrder(prevLinks.links.map(link => {
+                        let newOrder = link.order;
 
-                    if (link.order === order + 1) {
-                        newOrder--;
-                    } else if (link.order === order) {
-                        newOrder++;
-                    }
+                        if (link.order === order + 1) {
+                            newOrder--;
+                        } else if (link.order === order) {
+                            newOrder++;
+                        }
 
-                    return {
-                        ...link,
-                        order: newOrder
-                    }
-                });
-
-                return validateOrder(newLinks);
+                        return {
+                            ...link,
+                            order: newOrder
+                        }
+                    }))
+                }
             });
         }
     }
 
     const addLink = () => {
-        setLinkData(prev => {
-            return validateOrder(prev.concat({
-                id: uuidv4(),
-                name: "New Link",
-                order: prev.length + 1,
-                url: 'https://example.com',
-                createdAt: new Date()
-            }))
+        setLinksData(prev => {
+            return {
+                links: validateOrder(prev.links.concat({
+                    $type: 'fyi.bluelinks.links#link',
+                    id: uuidv4(),
+                    name: "New Link",
+                    order: prev.links.length + 1,
+                    url: 'https://example.com',
+                    createdAt: new Date().toISOString()
+                }))
+            }
         })
     }
 
     const removeLink = (id: string) => {
-        setLinkData(prev => {
-            return validateOrder(prev.filter(link => link.id !== id));
+        setLinksData(prev => {
+            return {
+                links: validateOrder(prev.links.filter(link => link.id !== id))
+            }
         })
     }
 
     const contentChange = (id: string, event: ChangeEvent<HTMLInputElement>) => {
-        setLinkData(prev => {
-            return prev.map(link => {
+        setLinksData(prev => {
+            const newLinks = prev.links.map(link => {
                 if (link.id === id) {
                     return {
                         ...link,
@@ -89,13 +94,17 @@ const LinksForm = ({ action, initialData }: Props) => {
 
                 return link;
             })
+
+            return {
+                links: newLinks
+            }
         })
     }
 
     return (
-        <form action={formAction} className="flex w-full h-full justify-start items-center flex-col gap-10 pt-10">
+        <form action={formAction} className="flex w-full min-h-full justify-start items-center flex-col gap-10 py-10">
             {
-                linkData.map((link, i) => {
+                linksData.links.map((link, i) => {
                     return (
                         <div key={link.id} className="flex flex-col gap-2 px-6 w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
                             <div className="flex flex-row items-center gap-1">
@@ -134,7 +143,7 @@ const LinksForm = ({ action, initialData }: Props) => {
                 <button type="button" onClick={addLink} className="bg-white text-black h-8 w-64">Add Link</button>
                 <Submit />
             </div>
-            <input name="data" type="hidden" value={JSON.stringify(linkData)} />
+            <input name="data" type="hidden" value={JSON.stringify(addTypeToLinks(linksData.links))} />
         </form>
     )
 }
@@ -163,24 +172,41 @@ const Submit = () => {
     this can break things, for example:
     adding a link after this will cause it to have order = 2, then user has two link with order 2
  */
-    const validateOrder = (linksData: LinkData[]) => {
-        const sorted = linksData.sort((a, b) => a.order - b.order);
-    
-        for (let i = 0; i < sorted.length; i++) {
-            if (i === 0 && sorted[i].order !== 1) {
-                sorted[i].order = 1
-            }
-    
-            if (i > 0 && sorted[i].order <= sorted[i-1].order) {
-                sorted[i].order = sorted[i-1].order + 1;
-            }
-    
-            if (i === sorted.length - 1 && sorted[i].order !== sorted.length) {
-                sorted[i].order = sorted.length;
+const validateOrder = (linksData: Links.Link[]) => {
+    const sorted = linksData.sort((a, b) => a.order - b.order);
+
+    for (let i = 0; i < sorted.length; i++) {
+        if (i === 0 && sorted[i].order !== 1) {
+            sorted[i].order = 1
+        }
+
+        if (i > 0 && sorted[i].order <= sorted[i - 1].order) {
+            sorted[i].order = sorted[i - 1].order + 1;
+        }
+
+        if (i === sorted.length - 1 && sorted[i].order !== sorted.length) {
+            sorted[i].order = sorted.length;
+        }
+    }
+
+    return sorted;
+}
+
+// The original data saved to user PDS' (before using lexicons) has an array of links
+// that didn't have a $type field, but they needed it. so for backwards compat add the field if its missing
+const addTypeToLinks = (linksData: Links.Link[]): Links.Link[] => {
+    const newLinks = linksData.map(link => {
+        if (link.$type === undefined) {
+            return {
+                ...link, 
+                $type: 'fyi.bluelinks.links#link'
             }
         }
-    
-        return sorted;
-    }
+
+        return link;
+    })
+
+    return newLinks;
+}
 
 export default LinksForm;
