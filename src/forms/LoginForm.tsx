@@ -9,13 +9,15 @@ const LoginForm = ({ action }: Props) => {
     const [state, formAction] = useActionState(action, null);
 
     return (
-        <form action={formAction} className="flex w-full h-full justify-center items-center flex-col gap-4">
+        <form action={formAction} className="flex w-full h-full justify-center items-center flex-col">
+            <p className="text-2xl">Blue Links</p>
             <input 
-                className="text-black h-8 w-64 px-2"
+                className="text-black h-8 w-64 px-2 mb-3 mt-1"
                 type="text" 
                 placeholder="Handle (john.bsky.social)"
                 name="handle"
                 required
+                autoFocus
             />
             <Submit />
         </form>
