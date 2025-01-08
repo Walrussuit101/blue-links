@@ -2,11 +2,11 @@ import { linksAction } from "@/actions/linksAction";
 import { restoreSession } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
 import LinksForm from "@/forms/LinksForm";
-import { LinkCollection, LinkData, LinkRecord } from "@/types";
 import { Agent } from "@atproto/api";
 import { Metadata } from "next";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
+import * as Links from '@/lexicon/types/fyi/bluelinks/links';
 
 export const metadata: Metadata = {
     title: 'Edit | Blue Links'
@@ -25,20 +25,27 @@ const EditPage = async () => {
         // get link data from user
         const agent = new Agent(session);
 
-        let links: LinkData[] = []
+        let linksRecord: Links.Record;
         try {
-            const linksRecord = await agent.com.atproto.repo.getRecord({
+            const response = await agent.com.atproto.repo.getRecord({
                 repo: session.did,
-                collection: LinkCollection,
+                collection: 'fyi.bluelinks.links',
                 rkey: 'self'
             });
 
-            links = (linksRecord.data.value as LinkRecord).links;
+            if (!Links.isRecord(response.data.value) || !Links.validateRecord(response.data.value).success) {
+                throw new Error('Invalid record retrieved');
+            }
+
+            linksRecord = response.data.value;
         } catch (e) {
-            links = [];
+            console.log(e);
+            linksRecord = {
+                links: []
+            };
         }
 
-        return <LinksForm action={linksAction} initialData={links} />
+        return <LinksForm action={linksAction} initialData={linksRecord} />
     }
 }
 
