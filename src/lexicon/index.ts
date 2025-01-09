@@ -1,69 +1,106 @@
+import { ComAtprotoRepoListRecords, ComAtprotoRepoGetRecord, ComAtprotoRepoCreateRecord, ComAtprotoRepoDeleteRecord } from '@atproto/api'
+
 /**
  * GENERATED CODE - DO NOT MODIFY
  */
-import {
-  createServer as createXrpcServer,
-  Server as XrpcServer,
-  Options as XrpcOptions,
-  AuthVerifier,
-  StreamAuthVerifier,
-} from '@atproto/xrpc-server'
+import { XrpcClient, FetchHandler, FetchHandlerOptions } from '@atproto/xrpc'
 import { schemas } from './lexicons'
+import { CID } from 'multiformats/cid'
+import * as FyiBluelinksLinks from './types/fyi/bluelinks/links'
 
-export function createServer(options?: XrpcOptions): Server {
-  return new Server(options)
-}
+export * as FyiBluelinksLinks from './types/fyi/bluelinks/links'
 
-export class Server {
-  xrpc: XrpcServer
+export class AtpBaseClient extends XrpcClient {
   fyi: FyiNS
 
-  constructor(options?: XrpcOptions) {
-    this.xrpc = createXrpcServer(schemas, options)
+  constructor(options: FetchHandler | FetchHandlerOptions) {
+    super(options, schemas)
     this.fyi = new FyiNS(this)
+  }
+
+  /** @deprecated use `this` instead */
+  get xrpc(): XrpcClient {
+    return this
   }
 }
 
 export class FyiNS {
-  _server: Server
+  _client: XrpcClient
   bluelinks: FyiBluelinksNS
 
-  constructor(server: Server) {
-    this._server = server
-    this.bluelinks = new FyiBluelinksNS(server)
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.bluelinks = new FyiBluelinksNS(client)
   }
 }
 
 export class FyiBluelinksNS {
-  _server: Server
+  _client: XrpcClient
+  links: LinksRecord
 
-  constructor(server: Server) {
-    this._server = server
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.links = new LinksRecord(client)
   }
 }
 
-type SharedRateLimitOpts<T> = {
-  name: string
-  calcKey?: (ctx: T) => string | null
-  calcPoints?: (ctx: T) => number
+export class LinksRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: Omit<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: FyiBluelinksLinks.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'fyi.bluelinks.links',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: Omit<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{ uri: string; cid: string; value: FyiBluelinksLinks.Record }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'fyi.bluelinks.links',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: Omit<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: FyiBluelinksLinks.Record,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    record.$type = 'fyi.bluelinks.links'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection: 'fyi.bluelinks.links', rkey: 'self', ...params, record },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: Omit<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'fyi.bluelinks.links', ...params },
+      { headers },
+    )
+  }
 }
-type RouteRateLimitOpts<T> = {
-  durationMs: number
-  points: number
-  calcKey?: (ctx: T) => string | null
-  calcPoints?: (ctx: T) => number
-}
-type HandlerOpts = { blobLimit?: number }
-type HandlerRateLimitOpts<T> = SharedRateLimitOpts<T> | RouteRateLimitOpts<T>
-type ConfigOf<Auth, Handler, ReqCtx> =
-  | Handler
-  | {
-      auth?: Auth
-      opts?: HandlerOpts
-      rateLimit?: HandlerRateLimitOpts<ReqCtx> | HandlerRateLimitOpts<ReqCtx>[]
-      handler: Handler
-    }
-type ExtractAuth<AV extends AuthVerifier | StreamAuthVerifier> = Extract<
-  Awaited<ReturnType<AV>>,
-  { credentials: unknown }
->
