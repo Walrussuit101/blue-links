@@ -1,8 +1,7 @@
 import { linksAction } from "@/actions/linksAction";
-import { restoreSession } from "@/atproto";
+import { getBlueLinksAgent, restoreSession } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
 import LinksForm from "@/forms/LinksForm";
-import { Agent } from "@atproto/api";
 import { Metadata } from "next";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
@@ -23,22 +22,17 @@ const EditPage = async () => {
         return redirect('/login');
     } else {
         // get link data from user
-        const agent = new Agent(session);
+        const agent = getBlueLinksAgent(session);
 
         let linksRecord: Links.Record;
         try {
-            const response = await agent.com.atproto.repo.getRecord({
+            const data = await agent.fyi.bluelinks.links.get({
                 repo: session.did,
-                collection: 'fyi.bluelinks.links',
                 rkey: 'self'
             });
 
-            if (!Links.isRecord(response.data.value) || !Links.validateRecord(response.data.value).success) {
-                throw new Error('Invalid record retrieved');
-            }
-
-            linksRecord = response.data.value;
-        } catch (e) {
+            linksRecord = data.value;
+        } catch(e) {
             console.log(e);
             linksRecord = {
                 links: []

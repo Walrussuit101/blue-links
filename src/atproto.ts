@@ -1,6 +1,8 @@
-import { AtUri } from "@atproto/api";
+import { Agent, AtUri } from "@atproto/api";
 import { DidDocument, DidResolver, HandleResolver } from "@atproto/identity"
 import { NodeOAuthClient } from "@atproto/oauth-client-node";
+import { AtpBaseClient, FyiNS } from "./lexicon";
+import { SessionManager } from "@atproto/api/dist/session-manager";
 
 interface DidDocumentWithServiceEndpoint extends DidDocument {
     serviceEndpoint: string
@@ -68,4 +70,12 @@ export const getHandleFromDID = async (did: string): Promise<string | null> => {
         const uri = new AtUri(knownAs);
         return uri.host;
     }
+}
+
+type IBlueLinksAgent = Agent & AtpBaseClient;
+export const getBlueLinksAgent = (options: string | URL | SessionManager) => {
+    const agent = new Agent(options) as IBlueLinksAgent;
+    agent.fyi = new FyiNS(agent);
+
+    return agent;
 }

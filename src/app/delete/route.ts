@@ -1,10 +1,10 @@
-import { getHandleFromDID, restoreSession } from "@/atproto";
+import { getBlueLinksAgent, getHandleFromDID, restoreSession } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
-import { Agent } from "@atproto/api";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
 
-const collections = ['fyi.bluelinks.links', 'info.timjefferson.dev.blue-links.links'];
+// Collection names the app has used previously
+const possibleCollections = ['info.timjefferson.dev.blue-links.links'];
 
 // For the current user, delete any records that this app has potentially created
 export const GET = async () => {
@@ -22,14 +22,20 @@ export const GET = async () => {
             redirect('/login');
         }
 
-        const agent = new Agent(session);
+        const agent = getBlueLinksAgent(session);
         const handle = await getHandleFromDID(session.did);
 
-        // delete records
-        for (let i = 0; i < collections.length; i++) {
+        // delete fyi.bluelinks.* namespace collections / records
+        await agent.fyi.bluelinks.links.delete({
+            repo: session.did,
+            rkey: 'self'
+        });
+
+        // delete extra records not in fyi.bluelinks.* namespace that the app possibly has made
+        for (let i = 0; i < possibleCollections.length; i++) {
             await agent.com.atproto.repo.deleteRecord({
                 repo: session.did,
-                collection: collections[i],
+                collection: possibleCollections[i],
                 rkey: 'self'
             })
         }
