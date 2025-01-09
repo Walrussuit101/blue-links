@@ -1,6 +1,5 @@
-import { getHandleFromDID, restoreSession } from "@/atproto";
+import { getBlueLinksAgent, getHandleFromDID, restoreSession } from "@/atproto";
 import { createAuthClient } from "@/auth/client";
-import { Agent } from "@atproto/api";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Links from '@/lexicon/types/fyi/bluelinks/links';
@@ -32,8 +31,10 @@ export const linksAction = async (prevState: any, formData: FormData) => {
     }
 
     // make agent for user and save record
-    const agent = new Agent(session);
+    const agent = getBlueLinksAgent(session);
     await agent.com.atproto.repo.putRecord({
+        // code gen from @atproto/lex-cli doesn't include a .put() or .update() method on the fyi.bluelinks.links namespace,
+        // have to use com.atproto.repo.putRecord with the collection name and validate the record above
         repo: session.did,
         collection: 'fyi.bluelinks.links',
         rkey: 'self',

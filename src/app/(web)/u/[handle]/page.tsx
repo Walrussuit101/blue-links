@@ -1,5 +1,5 @@
-import { Agent, AppBskyActorProfile } from "@atproto/api";
-import { getDIDDoc, restoreSession } from "../../../../atproto";
+import { AppBskyActorProfile } from "@atproto/api";
+import { getBlueLinksAgent, getDIDDoc, restoreSession } from "../../../../atproto";
 import UserImage from "./UserImage";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -31,7 +31,7 @@ const User = async ({ params }: Props) => {
         return notFound();
     }
 
-    const agent = new Agent(didDoc.serviceEndpoint);
+    const agent = getBlueLinksAgent(didDoc.serviceEndpoint);
 
     const profileRecord = await agent.com.atproto.repo.getRecord({
         repo: didDoc.id,
@@ -42,18 +42,13 @@ const User = async ({ params }: Props) => {
 
     let linksRecord: Links.Record;
     try {
-        const response = await agent.com.atproto.repo.getRecord({
+        const data = await agent.fyi.bluelinks.links.get({
             repo: didDoc.id,
-            collection: 'fyi.bluelinks.links',
             rkey: 'self'
         });
 
-        if (!Links.isRecord(response.data.value) || !Links.validateRecord(response.data.value).success) {
-            throw new Error('Invalid record retrieved');
-        }
-
-        linksRecord = response.data.value;
-    } catch (e) {
+        linksRecord = data.value;
+    } catch(e) {
         console.log(e);
         linksRecord = {
             links: []
