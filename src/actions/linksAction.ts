@@ -3,6 +3,7 @@ import { createAuthClient } from "@/auth/client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Links from '@/lexicon/types/fyi/bluelinks/links';
+import { revalidatePath } from "next/cache";
 
 export const linksAction = async (prevState: any, formData: FormData) => {
     'use server';
@@ -44,6 +45,8 @@ export const linksAction = async (prevState: any, formData: FormData) => {
 
     // redirect to the user's page to show changes
     const handle = await getHandleFromDID(session.did);
+    const path = `/u/${handle}`;
 
-    return redirect(`/u/${handle}`);
+    revalidatePath(path)
+    return redirect(path);
 }

@@ -6,10 +6,6 @@ import { notFound } from "next/navigation";
 import * as Links from '@/lexicon/types/fyi/bluelinks/links';
 import AuthGuard from "@/components/AuthGuard";
 
-export const metadata: Metadata = {
-    title: 'Edit | Blue Links'
-}
-
 interface Props {
     params: Promise<{
         handle: string
@@ -49,3 +45,11 @@ const EditPage = async ({ params }: Props) => {
 }
 
 export default EditPage;
+
+export const dynamicParams = true;
+export const revalidate = false;
+export const generateStaticParams = async () => [];
+
+export const metadata: Metadata = {
+    title: 'Edit | Blue Links'
+}

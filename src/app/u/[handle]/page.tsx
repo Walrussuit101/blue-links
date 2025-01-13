@@ -6,14 +6,6 @@ import { Metadata } from "next";
 import * as Links from '@/lexicon/types/fyi/bluelinks/links';
 import AuthGuard from "@/components/AuthGuard";
 
-export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
-    const handle = (await params).handle;
-
-    return {
-        title: `${handle} | Blue Links`
-    }
-}
-
 interface Props {
     params: Promise<{
         handle: string
@@ -90,3 +82,15 @@ const User = async ({ params }: Props) => {
 }
 
 export default User;
+
+export const dynamicParams = true;
+export const revalidate = false;
+export const generateStaticParams = async () => [];
+
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+    const handle = (await params).handle;
+
+    return {
+        title: `${handle} | Blue Links`
+    }
+}
