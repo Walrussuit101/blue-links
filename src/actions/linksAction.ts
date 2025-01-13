@@ -47,6 +47,7 @@ export const linksAction = async (prevState: any, formData: FormData) => {
     const handle = await getHandleFromDID(session.did);
     const path = `/u/${handle}`;
 
+    revalidatePath(`/edit/${handle}`);
     revalidatePath(path)
     return redirect(path);
 }
