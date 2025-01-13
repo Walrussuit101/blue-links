@@ -11,6 +11,7 @@ export const GET = async () => {
     const session = await restoreSession(authClient, did?.value);
 
     if (!session) {
+        cookieStore.delete('did');
         return new NextResponse(null, { status: 401 });
     } else {
         const handle = await getHandleFromDID(session.did);
