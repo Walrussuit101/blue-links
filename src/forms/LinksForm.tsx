@@ -143,7 +143,7 @@ const LinksForm = ({ action, initialData }: Props) => {
             <div className="flex flex-col gap-2">
                 <button type="button" onClick={addLink} className="bg-white text-black h-8 w-64">Add Link</button>
                 <Submit />
-                <Link href="/confirm/delete" className="mt-5">
+                <Link href="/delete/confirm" className="mt-5">
                     <button type="button" className="bg-red-500 text-black h-8 w-64">Delete Data</button>
                 </Link>
             </div>
